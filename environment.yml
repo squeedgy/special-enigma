@@ -5,3 +5,4 @@ dependencies:
   - python
   - boto3
   - pytest
+  - snowflake-connector-python
