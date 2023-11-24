@@ -1,16 +1,20 @@
 import snowflake.connector
 import boto3
+import configparser
 
-SNOWFLAKE_ACCOUNT = 'snowflake_account_url'
-SNOWFLAKE_USER = 'snowflake_username'
-SNOWFLAKE_PASSWORD = 'snowflake_password'
-SNOWFLAKE_DATABASE = 'snowflake_database'
-SNOWFLAKE_WAREHOUSE = 'snowflake_warehouse'
-SNOWFLAKE_SCHEMA = 'snowflake_schema'
+config = configparser.ConfigParser()
+config.read('config.ini')
 
-AWS_ACCESS_KEY = 'aws_access_key'
-AWS_SECRET_KEY = 'aws_secret_key'
-KINESIS_STREAM_NAME = 'kinesis_stream_name'
+SNOWFLAKE_USER = config['snowflake']['user']
+SNOWFLAKE_PASSWORD = config['snowflake']['password']
+SNOWFLAKE_ACCOUNT = config['snowflake']['account']
+SNOWFLAKE_DATABASE = config['snowflake']['database']
+SNOWFLAKE_WAREHOUSE = config['snowflake']['warehouse']
+SNOWFLAKE_SCHEMA = config['snowflake']['schema']
+
+AWS_ACCESS_KEY = config['aws']['access_key']
+AWS_SECRET_KEY = config['aws']['secret_key']
+KINESIS_STREAM_NAME = config['aws']['kinesis_stream_name']
 
 con = snowflake.connector.connect(
     user=SNOWFLAKE_USER,
@@ -22,20 +26,20 @@ con = snowflake.connector.connect(
 )
 
 with con.cursor() as cur:
-    cur.execute(f"CREATE OR REPLACE STAGE kinesis_stage")
+    cur.execute("CREATE OR REPLACE STAGE kinesis_stage")
 
 kinesis_client = boto3.client(
     'kinesis',
     aws_access_key_id=AWS_ACCESS_KEY,
     aws_secret_access_key=AWS_SECRET_KEY,
-    region_name='your_aws_region'
+    region_name='aws_region'
 )
 
 def load_data_into_snowflake(records):
     with con.cursor() as cur:
         for record in records:
             data = record['Data']
-            cur.execute(f"INSERT INTO your_snowflake_table VALUES (%s)", (data,))
+            cur.execute(f"INSERT INTO snowflake_table VALUES (%s)", (data,))
 
 def main():
     response = kinesis_client.describe_stream(StreamName=KINESIS_STREAM_NAME)
