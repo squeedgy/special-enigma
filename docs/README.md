@@ -7,4 +7,4 @@ This project implements a scalable analytics pipeline that continuously analyzes
 
 ## Getting Started
 
-Follow the [Requirements](docs/requirements.md) to set up and run the pipeline
+Follow the [Requirements](../docs/requirements.md) to set up and run the pipeline
